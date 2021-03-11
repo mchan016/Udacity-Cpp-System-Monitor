@@ -91,7 +91,7 @@ float LinuxParser::MemoryUtilization()
     }
   }
 
-  return (memTotal - memFree) / static_cast<float>(memTotal);
+  return memFree / static_cast<float>(memTotal);
 }
 
 // Parse and return the system uptime (in seconds)
