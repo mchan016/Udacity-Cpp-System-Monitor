@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <cstddef>
+#include <algorithm>
 #include <set>
 #include <string>
 #include <vector>
@@ -26,7 +27,15 @@ System::System()
 Processor& System::Cpu() { return cpu_; }
 
 // Return a container composed of the system's processes
-vector<Process>& System::Processes() { return processes_; }
+vector<Process>& System::Processes() 
+{ 
+    // Sort processes based on their cpu utilization
+    std::sort(processes_.begin(), processes_.end(), [](const auto& a, const auto& b) 
+    {
+        return a < b;
+    });
+    return processes_; 
+}
 
 // Return the request system's kernel identifier (string) from LinuxParser
 std::string System::Kernel() const { return LinuxParser::Kernel(); }
