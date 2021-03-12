@@ -111,21 +111,73 @@ long LinuxParser::UpTime()
   return totalUptime;
 }
 
-// TODO: Read and return the number of jiffies for the system
-long LinuxParser::Jiffies() { return 0; }
-
 // TODO: Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
 long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
 
-// TODO: Read and return the number of active jiffies for the system
-long LinuxParser::ActiveJiffies() { return 0; }
+// Fill up the input vector with number of jiffies
+void LinuxParser::FillJiffies(std::vector<long>& jiffs, std::istringstream& filestream)
+{
+  filestream >> jiffs[CPUStates::kUser_];
+  filestream >> jiffs[CPUStates::kNice_];
+  filestream >> jiffs[CPUStates::kSystem_];
+  filestream >> jiffs[CPUStates::kIdle_];
+  filestream >> jiffs[CPUStates::kIOwait_];
+  filestream >> jiffs[CPUStates::kIRQ_];
+  filestream >> jiffs[CPUStates::kSoftIRQ_];
+  filestream >> jiffs[CPUStates::kSteal_];
+  filestream >> jiffs[CPUStates::kGuest_];
+  filestream >> jiffs[CPUStates::kGuestNice_];
+}
 
-// TODO: Read and return the number of idle jiffies for the system
-long LinuxParser::IdleJiffies() { return 0; }
+// Calculate the total active jiffies
+long LinuxParser::ActiveJiffies(const vector<long>& jiffs)
+{
+  return jiffs[CPUStates::kIdle_] + jiffs[CPUStates::kIOwait_];
+}
 
-// TODO: Read and return CPU utilization
-vector<string> LinuxParser::CpuUtilization() { return {}; }
+// Calculate the total idle jiffies
+long LinuxParser::IdleJiffies(const vector<long>& jiffs)
+{
+  return jiffs[CPUStates::kUser_] + jiffs[CPUStates::kNice_] + 
+         jiffs[CPUStates::kSystem_] + jiffs[CPUStates::kIRQ_] + 
+         jiffs[CPUStates::kSoftIRQ_] + jiffs[CPUStates::kSteal_];
+}
+
+// Read and return CPU utilization for total and individual CPUs
+vector<float> LinuxParser::CpuUtilization() 
+{
+  const size_t cpuElements{10}; // Total of ten fields
+  vector<float> cpus;
+  std::ifstream stream(kProcDirectory + kStatFilename);
+  std::string line, category;
+
+  if (stream.is_open())
+  {
+    while (getline(stream, line))
+    {
+      std::istringstream filestream(line);
+      filestream >> category;
+      if (category.find("cpu") != string::npos)
+      {
+        // Get all jiffies data
+        std::vector<long> filledJiffies(cpuElements, 0);
+        FillJiffies(filledJiffies, filestream);
+
+        long active = ActiveJiffies(filledJiffies);
+        long idle = IdleJiffies(filledJiffies);
+
+        cpus.push_back(static_cast<float>(active) / (active + idle));
+
+        continue;
+      }
+
+      break;
+    }
+  }
+
+  return cpus;
+}
 
 // Read and return the total number of processes
 int LinuxParser::TotalProcesses() 

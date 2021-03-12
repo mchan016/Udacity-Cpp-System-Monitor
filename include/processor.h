@@ -6,7 +6,6 @@ class Processor {
   float Utilization();
 
  private:
-  float _cpuPercentage;
 };
 
 #endif
