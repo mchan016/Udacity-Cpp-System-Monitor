@@ -1,19 +1,9 @@
-#include <unistd.h>
-#include <cstddef>
 #include <algorithm>
-#include <set>
-#include <string>
-#include <vector>
 
 #include "linux_parser.h"
 #include "process.h"
 #include "processor.h"
 #include "system.h"
-
-using std::set;
-using std::size_t;
-using std::string;
-using std::vector;
 
 // Constructor for system
 System::System()
@@ -27,7 +17,7 @@ System::System()
 Processor& System::Cpu() { return cpu_; }
 
 // Return a container composed of the system's processes
-vector<Process>& System::Processes() 
+std::vector<Process>& System::Processes() 
 { 
     // Sort processes based on their cpu utilization
     std::sort(processes_.begin(), processes_.end(), [](const auto& a, const auto& b) 
