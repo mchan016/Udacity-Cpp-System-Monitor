@@ -15,22 +15,22 @@ using std::vector;
 Process::Process(int pid) : _pid(pid) {}
 
 // Return this process's ID
-int Process::Pid() { return _pid; }
+int Process::Pid() const { return _pid; }
 
 // TODO: Return this process's CPU utilization
 float Process::CpuUtilization() const { return 0; }
 
 // Return the command that generated this process
-string Process::Command() { return LinuxParser::Command(_pid); }
+string Process::Command() const { return LinuxParser::Command(_pid); }
 
 // Return this process's memory utilization
-string Process::Ram() { return LinuxParser::Ram(_pid); }
+string Process::Ram() const { return LinuxParser::Ram(_pid); }
 
 // Return the user (name) that generated this process
-string Process::User() { return LinuxParser::User(_pid); }
+string Process::User() const { return LinuxParser::User(_pid); }
 
 // Return the age of this process (in seconds)
-long int Process::UpTime() { return LinuxParser::UpTime(_pid); }
+long int Process::UpTime() const { return LinuxParser::UpTime(_pid); }
 
 // Overload the "less than" comparison operator for Process objects
 bool Process::operator<(Process const& a) const 
