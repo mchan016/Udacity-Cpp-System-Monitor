@@ -111,9 +111,53 @@ long LinuxParser::UpTime()
   return totalUptime;
 }
 
-// TODO: Read and return the number of active jiffies for a PID
-// REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
+// Get process CPU utilization stat, looking for:
+// 14. utime | 15. stime | 16. cutime | 17. cstime | 22. starttime
+float LinuxParser::ProcCpuUtil(int pid)
+{
+  const size_t lastElement{22};
+  long utime, stime, cutime, cstime, starttime;
+  float procUtil;
+  string line;
+  string kPid = std::to_string(pid) + '/';
+  std::ifstream stream(kProcDirectory + kPid + kStatFilename);
+
+  if (stream.is_open())
+  {
+    getline(stream, line);
+    std::istringstream linestream(line);
+
+    // Get values for each field
+    for (size_t index = 0; index < lastElement; index++)
+    {
+      switch (index)
+      {
+        case 14:
+          linestream >> utime;
+          break;
+        case 15:
+          linestream >> stime;
+          break;
+        case 16:
+          linestream >> cutime;
+          break;
+        case 17:
+          linestream >> cstime;
+          break;
+        default:
+          linestream >> starttime;
+          break;
+      }
+    }
+
+    // Calculate CPU usage percentage
+    long totalTime = utime + stime + cutime + cstime;
+    long elapsedSeconds = UpTime(pid) - (starttime / sysconf(_SC_CLK_TCK));
+    procUtil = 100 * ((static_cast<float>(totalTime) / sysconf(_SC_CLK_TCK)) / elapsedSeconds);
+  }
+
+  return procUtil;
+}
 
 // Fill up the input vector with number of jiffies
 void LinuxParser::FillJiffies(std::vector<long>& jiffs, std::istringstream& filestream)

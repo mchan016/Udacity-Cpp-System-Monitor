@@ -44,7 +44,7 @@ std::vector<float> CpuUtilization();
 void FillJiffies(std::vector<long>& jiffs, std::istringstream& filestream);
 long ActiveJiffies(const std::vector<long>& jiffs);
 long IdleJiffies(const std::vector<long>& jiffs);
-long ActiveJiffies(int pid);
+float ProcCpuUtil(int pid);
 
 // Processes
 std::string Command(int pid);

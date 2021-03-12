@@ -12,7 +12,7 @@ class Process {
   int Pid() const;
   std::string User() const;
   std::string Command() const;
-  float CpuUtilization() const;                  // TODO: See src/process.cpp
+  float CpuUtilization() const;
   std::string Ram() const;
   long int UpTime() const;
   bool operator<(Process const& a) const;
