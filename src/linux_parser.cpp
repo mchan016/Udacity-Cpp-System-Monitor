@@ -302,7 +302,7 @@ string LinuxParser::Ram(int pid)
     }
   }
 
-  return std::to_string(ram / kBtomB) + " mB"; 
+  return std::to_string(ram / kBtomB); 
 }
 
 // Read and return the user ID associated with a process
