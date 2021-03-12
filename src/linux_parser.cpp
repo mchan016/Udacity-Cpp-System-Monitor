@@ -90,7 +90,7 @@ float LinuxParser::MemoryUtilization()
     }
   }
 
-  return (std::stoul(memTotal) - std::stoul(memFree)) / std::stof(memTotal);
+  return (std::stoi(memTotal) - std::stoi(memFree)) / std::stof(memTotal);
 }
 
 // Parse and return the system uptime (in seconds)
@@ -110,13 +110,12 @@ long LinuxParser::UpTime()
   return totalUptime;
 }
 
-// Get process CPU utilization stat, looking for:
+// Get process CPU active jiffies, looking for:
 // 14. utime | 15. stime | 16. cutime | 17. cstime | 22. starttime
-float LinuxParser::ProcCpuUtil(int pid)
+long LinuxParser::ActiveJiffies(int pid)
 {
   const size_t lastElement{22};
   long utime, stime, cutime, cstime, starttime;
-  float procUtil;
   string line;
   string kPid = std::to_string(pid) + '/';
   std::ifstream stream(kProcDirectory + kPid + kStatFilename);
@@ -149,12 +148,12 @@ float LinuxParser::ProcCpuUtil(int pid)
       }
     }
 
-    // Calculate CPU usage percentage
-    long totalTime = utime + stime + cutime + cstime;
-    procUtil = ((static_cast<float>(totalTime) / sysconf(_SC_CLK_TCK)) / UpTime(pid));
   }
 
-  return procUtil;
+  // Calculate total active jiffies for process (excluding child)
+  long activeJiffs = utime + stime;
+
+  return activeJiffs;
 }
 
 // Fill up the input vector with number of jiffies
