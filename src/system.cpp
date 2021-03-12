@@ -14,10 +14,18 @@ using std::size_t;
 using std::string;
 using std::vector;
 
+// Constructor for system
+System::System()
+{
+    std::vector<int> pids = LinuxParser::Pids();
+    for (size_t index = 0; index < pids.size(); index++)
+        processes_.push_back(Process(pids[index]));
+}
+
 // Return the system's CPU
 Processor& System::Cpu() { return cpu_; }
 
-// TODO: Return a container composed of the system's processes
+// Return a container composed of the system's processes
 vector<Process>& System::Processes() { return processes_; }
 
 // Return the request system's kernel identifier (string) from LinuxParser
