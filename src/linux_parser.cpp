@@ -73,8 +73,7 @@ vector<int> LinuxParser::Pids()
 // Parse and return the system memory utilization (/proc/meminfo)
 float LinuxParser::MemoryUtilization() 
 {
-  string category;
-  size_t memTotal, memFree;
+  string category, memTotal, memFree;
   string line;
   std::ifstream stream(kProcDirectory + kMeminfoFilename);
   if (stream.is_open())
@@ -91,7 +90,7 @@ float LinuxParser::MemoryUtilization()
     }
   }
 
-  return (memTotal - memFree) / static_cast<float>(memTotal);
+  return (std::stoul(memTotal) - std::stoul(memFree)) / std::stof(memTotal);
 }
 
 // Parse and return the system uptime (in seconds)
@@ -177,15 +176,15 @@ void LinuxParser::FillJiffies(std::vector<long>& jiffs, std::istringstream& file
 // Calculate the total active jiffies
 long LinuxParser::ActiveJiffies(const vector<long>& jiffs)
 {
-  return jiffs[CPUStates::kIdle_] + jiffs[CPUStates::kIOwait_];
+  return jiffs[CPUStates::kUser_] + jiffs[CPUStates::kNice_] + 
+         jiffs[CPUStates::kSystem_] + jiffs[CPUStates::kIRQ_] + 
+         jiffs[CPUStates::kSoftIRQ_] + jiffs[CPUStates::kSteal_];
 }
 
 // Calculate the total idle jiffies
 long LinuxParser::IdleJiffies(const vector<long>& jiffs)
 {
-  return jiffs[CPUStates::kUser_] + jiffs[CPUStates::kNice_] + 
-         jiffs[CPUStates::kSystem_] + jiffs[CPUStates::kIRQ_] + 
-         jiffs[CPUStates::kSoftIRQ_] + jiffs[CPUStates::kSteal_];
+  return jiffs[CPUStates::kIdle_] + jiffs[CPUStates::kIOwait_];
 }
 
 // Read and return CPU utilization for total and individual CPUs
