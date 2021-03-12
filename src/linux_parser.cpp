@@ -151,8 +151,7 @@ float LinuxParser::ProcCpuUtil(int pid)
 
     // Calculate CPU usage percentage
     long totalTime = utime + stime + cutime + cstime;
-    long elapsedSeconds = UpTime(pid) - (starttime / sysconf(_SC_CLK_TCK));
-    procUtil = 100 * ((static_cast<float>(totalTime) / sysconf(_SC_CLK_TCK)) / elapsedSeconds);
+    procUtil = ((static_cast<float>(totalTime) / sysconf(_SC_CLK_TCK)) / UpTime(pid));
   }
 
   return procUtil;
@@ -359,7 +358,6 @@ string LinuxParser::User(int pid)
 long LinuxParser::UpTime(int pid) 
 { 
   string line, startTime;
-  long upTime;
   const size_t startTimePos{22};
   string kPid = std::to_string(pid) + '/';
   std::ifstream stream(kProcDirectory + kPid + kStatFilename);
@@ -372,10 +370,8 @@ long LinuxParser::UpTime(int pid)
       lineStream >> startTime;
   }
 
-  // Convert # of clock ticks into seconds
-  std::istringstream converter(startTime);
-  converter >> upTime;
-  upTime /= sysconf(_SC_CLK_TCK);
-
-  return upTime;
+  // process starttime is the "time the process started after system boot"
+  // To get process uptime, convert to seconds and subtract from
+  // total system uptime
+  return UpTime() - (std::stoul(startTime) / sysconf(_SC_CLK_TCK));
 }
