@@ -5,22 +5,22 @@
 #include "processor.h"
 #include "system.h"
 
-// Constructor for system
-System::System()
-{
-    std::vector<int> pids = LinuxParser::Pids();
-    for (size_t index = 0; index < pids.size(); index++)
-        processes_.push_back(Process(pids[index]));
-}
-
 // Return the system's CPU
 Processor& System::Cpu() { return cpu_; }
 
 // Return a container composed of the system's processes
 std::vector<Process>& System::Processes() 
 { 
+    processes_.clear();
+
+    std::vector<int> pids = LinuxParser::Pids();
+    processes_.reserve(pids.size());
+    for (const auto& pid : pids)
+        processes_.emplace_back(pid);
+    
     // Sort processes based on their cpu utilization
     std::sort(processes_.begin(), processes_.end());
+    
     return processes_; 
 }
 
