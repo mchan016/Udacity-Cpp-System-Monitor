@@ -20,10 +20,7 @@ Processor& System::Cpu() { return cpu_; }
 std::vector<Process>& System::Processes() 
 { 
     // Sort processes based on their cpu utilization
-    std::sort(processes_.begin(), processes_.end(), [](const auto& a, const auto& b) 
-    {
-        return a < b;
-    });
+    std::sort(processes_.begin(), processes_.end());
     return processes_; 
 }
 
